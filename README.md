@@ -3,7 +3,7 @@
 
 # Enunciado:
 
-La empresa "TechSolutions" nos ha solicitado desarrollar un software de gestión de proyectos para
+La empresa **"TechSolutions"** nos ha solicitado desarrollar un software de gestión de proyectos para
 llevar a cabo un control exhaustivo de los mismos.<br>
 Datos correspondientes a cada proyecto:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;● ID<br>
