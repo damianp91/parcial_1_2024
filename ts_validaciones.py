@@ -20,8 +20,15 @@
 # QUE SURJA DE, FUERA DE O EN CONEXIÓN CON EL SOFTWARE O EL USO U OTROS TRATOS EN EL
 # SOFTWARE.
 
-
+import os
 from datetime import datetime
+
+def limpiar_consola():
+    _ = input('\nPresione Enter para continuar...')
+    if os in ['nt', 'dos', 'ce']:
+        os.system('clear')
+    else: 
+        os.system('cls')   
 
 
 def validar_entero(numero_str: str, minimo: int, maximo: int) -> (bool):
@@ -32,7 +39,8 @@ def validar_entero(numero_str: str, minimo: int, maximo: int) -> (bool):
         minimo (int): Valor mínimo aceptado.
         maximo (int): Valor máximo aceptado.
     Returns:
-        bool: True si la cadena representa un número entero dentro del rango especificado, False en caso contrario.
+        bool: True si la cadena representa un número entero dentro del 
+        rango especificado, False en caso contrario.
     """
     validador_ok = False
     
@@ -53,7 +61,8 @@ def validar_caracteres(texto: str, longitud: int, alfanumerico= False) -> (bool)
         alfanumerico (bool): por defecto es False, pero si se desea validar
         cadena de caracteres alfanumeroricos puede agregarse True
     Returns:
-        (bool): Devuelve un valor de tipo bool si se hizo o no la validacion
+        bool: True si la cadena representa caracteres alfanumericos dentro 
+        del rango especificado, False en caso que sean solo alfabeticos.
     """
     validador_ok = False
     tex_aux = texto.replace(' ', '')
@@ -72,35 +81,47 @@ def ingreso_fecha() -> (datetime):
     """
     Pide por consola dia, mes, anio para ser validados y formateados como (dd/mm/aaaa)
     Returns:
-        datetime: Devuelve objeto de tipo datetime
+        datetime: Devuelve objeto de tipo datetime o None en caso de no ingresar los datos
+        correctamente.
     """
     dia = input("Ingrese dia (dd): ")
     mes = input("Ingrese mes (mm): ")
     anio = input("Ingrese anio (aaaa): ")
     
+    fecha = None
     if validar_entero(dia, 1, 31) and validar_entero(mes, 1, 12)\
         and validar_entero(anio, 1800, 3000):
             formato = f"{int(dia):02d}/{int(mes):02d}/{anio}"
-            fecha = datetime.strptime(str(formato), '%d/%m/%Y')
-            print("Fecha correcta")
+            
+            try:
+                fecha = datetime.strptime(formato, '%d/%m/%Y')
+                print("\nFecha correcta")
+            except:
+                print("\nLa fecha ingresada no es válida.")
     
     else:
-        print("El dato ingresado no es numerico o no respeta el formato pedido (dd)(mm)(aaaa)")
+        print("\nEl dato ingresado no es numerico o no respeta el formato pedido (dd)(mm)(aaaa)")
     
     return fecha
 
 
 def validador_fechas(fecha_1, fecha_2) -> (bool):
     """
-    Funcion encargada de validar que fecha 1 sea menos a fecha 2
+    Funcion encargada de validar que fecha_1 sea menos a fecha_2
     Args:
         fecha_1 (datetime): Ojeto de tipo fecha 
         fecha_2 (datetime): Ojeto de tipo fecha 
     Returns:
-        (bool): Dependiendo si es mayor o menor los valores ingresados
-                por parametro
+        bool: True si fecha_1 es menor que fecha_2, de lo contrario False.
     """
-    return fecha_2 > fecha_1
+    validado_ok = False
+    
+    try:
+        validado_ok = fecha_2 > fecha_1
+    except TypeError:
+        print("\n¡¡¡No se ingreso una o las dos fechas!!!")
+    
+    return validado_ok
 
 
 def estado_proyecto() -> (str):
@@ -110,15 +131,44 @@ def estado_proyecto() -> (str):
     Returns:
         (str): Retorna una cadena de caracteres
     """
-    estado = {"1":"Activo", "2":"Cancelado", "3":"Filanizado"}
+    estado = {"1":"Activo", "2":"Cancelado", "3":"Finalizado"}
     estado_ok = estado["1"]
-    print("Por defecto se asigna el estado de Activo al proyecto")
-    opcion = input("Presione 1 para continuar o Ingrese 2 para 'Cancelado' o 3 para 'Filanizado' si desea cambiar el estado: ")
+    print("\nPor defecto se asigna el estado de Activo al proyecto")
+    opcion = input("Presione ENTER para continuar o Ingrese 2 para 'Cancelado' o 3 para 'Filanizado' si desea cambiar el estado: ")
     
     if validar_entero(opcion, 1, 3) and (int(opcion) == 2 or int(opcion) == 3):
-        estado_ok = estado[opcion]
-        print(f"Estado se cambio correctamente a: {estado_ok}")
+        estado_ok = estado.get(opcion)
+        print(f"\nEstado se cambio correctamente a: {estado_ok}")
     else:
-        print(f"Se asigna estado: {estado_ok}")
+        print(f"\nSe asigna estado: {estado_ok}")
     
     return estado_ok
+
+
+def verificador_formato_fecha(valor: str, formato: str= '%d/%m/%Y') -> (str):
+    """
+    Verifica si una fecha esta en el formato requerido. Si no, la formatea al formato especificado.
+    Args:
+        valor (str): La fecha a verificar.
+        formato (str): El formato deseado. Por defecto es '%d/%m/%Y'.
+    Returns:
+        str: La fecha en el formato especificado.
+    """
+    formato_ok = ""
+    try:
+        
+        fecha = datetime.strptime(valor, '%d-%m-%Y')
+        formato_ok = fecha.strftime(formato)
+    
+    except ValueError:
+        try:
+            
+            datetime.strptime(valor, formato)
+            formato_ok = valor
+        
+        except ValueError:
+            
+            raise ValueError(f"La fecha '{valor}' no está en un formato válido.")
+    
+    return formato_ok
+

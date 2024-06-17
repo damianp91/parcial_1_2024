@@ -23,19 +23,29 @@
 
 
 from ts_biblioteca import(
-    limpiar_consola, ts_ingreso_datos_proyecto, ts_mostrar_proyectos,
-    ts_modificar_proyecto, ts_mostrar_personajes_ordenados
+    ts_ingreso_datos_proyecto, ts_mostrar_proyectos,
+    ts_modificar_proyecto, ts_mostrar_tabla_ordenada
 )
 
-from ts_menus import(
-    ts_menu_principal
+from ts_biblioteca import(
+    ts_menu_principal, ts_mostrar_proyectos
 )
 
+from ts_validaciones import(
+    limpiar_consola
+)
 
 def ts_gestion_proyectos_app(lista_proyectos: list[dict]) -> (None):
+    """
+    Funcion encargada de llamar las funciones principales para el fincionamiento
+    del ABM
+    Args:
+        lista_proyectos (list[dict]): Lista de diccionarios a manipular
+    """
     
     while True:
         
+        ts_mostrar_proyectos(lista_proyectos)
         eleccion = ts_menu_principal()
         
         match eleccion:
@@ -54,7 +64,7 @@ def ts_gestion_proyectos_app(lista_proyectos: list[dict]) -> (None):
             case 7:
                 pass
             case 8:
-                ts_mostrar_personajes_ordenados(lista_proyectos, "Estado", "menor")
+                ts_mostrar_tabla_ordenada(lista_proyectos)
             case 9:
                 pass
             case 10:

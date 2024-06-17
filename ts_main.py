@@ -23,7 +23,12 @@
 
 
 if __name__== '__main__':
-    from ts_app import ts_gestion_proyectos_app
-    from ts_manupulacion_archivos import copia_csv_original
+    from ts_app import(
+        ts_gestion_proyectos_app
+    )
+    
+    from ts_manupulacion_archivos import(
+        copia_csv_original
+    )
     
     ts_gestion_proyectos_app(copia_csv_original("Proyectos.csv"))

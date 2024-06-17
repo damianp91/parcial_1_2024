@@ -21,13 +21,9 @@
 # SOFTWARE.
 
 
-
-from ts_validaciones import(validar_entero)
-
-
-def imprimir_menu() ->(str):
+def menu_principal() -> (None):
     """
-    Imprime en consola el menu del sistema
+    Imprime por consola el menu del sistema principal
     Args:
         None.
     Returns:
@@ -35,6 +31,9 @@ def imprimir_menu() ->(str):
     """
     menu = \
     """
+    =============================================
+                GESTION DE PROYECTOS
+    =============================================
     01. Ingresar proyecto.
     02. Modificar proyecto.
     03. Cancelar proyecto.
@@ -49,35 +48,25 @@ def imprimir_menu() ->(str):
     11. Informe top 3 proyectos con mayor
         presupuesto durante 2010-2020.
     12. Salir.
+    =============================================
     """
     print(menu)
 
 
-def ts_menu_principal() -> (int):
+def menu_modificar() -> (None):
     """
-    Muestra en cosola menu principal y valida si la opcion ingresada sea correcta
-    Returns:
-        (int): devuelve -1 si no es un valor numerico o el valor ingresado
-    """
-    valor = -1
-    imprimir_menu()
-    opcion = input("Ingrese la opcion (1-12): ")
-    if validar_entero(opcion, 1, 12):
-        valor = int(opcion)
-    return valor
-
-
-def menu_modificar():
-    """
-    Imprime en consola el submenu del sistema
+    Imprime en consola el submenu del sistema para modificar
+    elementos en los campos indicados
     Args:
         None.
     Returns:
-        str: Devuelve uan cadena de caracteres
+        str: Devuelve una cadena de caracteres
     """
     sub_menu = \
     """
-    ------- MODIFICACION DATOS -------
+    ==================================
+            MODIFICACION DATOS 
+    ==================================
     01. Nombre proyecto.
     02. Descripcion proyecto.
     03. Presupuesto proyecto.
@@ -85,6 +74,51 @@ def menu_modificar():
     05. Fecha fin proyecto.
     06. Estado proyecto.
     07. Salir.
-    -----------------------------------
+    ==================================
+    """
+    print(sub_menu)
+
+
+def menu_ornenamiento() -> (None):
+    """
+    Imprime en consola el submenu del sistema para ordenar
+    elementos en los campos indicados
+    Args:
+        None.
+    Returns:
+        str: Devuelve una cadena de caracteres
+    """
+    sub_menu = \
+    """
+    ==================================
+            ORDENAMIENTO DATOS
+    ==================================
+    01. Nombre proyecto.
+    02. Presupuesto.
+    03. Fecha inicio. 
+    04. Salir.
+    ==================================
+    """
+    print(sub_menu)
+
+
+def menu_menor_mayor() -> (None):
+    """
+    Imprime en consola el submenu del sistema para indicar
+    el sentido elementos en los campos indicados
+    Args:
+        None.
+    Returns:
+        str: Devuelve una cadena de caracteres
+    """
+    sub_menu = \
+    """
+    ==================================
+            SENTIDO ORDENAMIENTO
+    ==================================
+    01. Mayor a Menor.
+    02. Menor a Mayor.
+    03. Salir.
+    ==================================
     """
     print(sub_menu)

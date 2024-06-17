@@ -22,7 +22,9 @@
 
 
 import csv
-from unidecode import unidecode
+from unidecode import(
+    unidecode
+)
 
 def copia_csv_original(nombre_archivo: str) -> (list):
     """
@@ -34,11 +36,11 @@ def copia_csv_original(nombre_archivo: str) -> (list):
         list: Lista de diccionarios con los datos del archivo CSV.
     """
     lista_aux = []
-    with open(nombre_archivo, 'r', encoding='utf-8') as file:
-        read = csv.DictReader(file)
-        for row in read:
-            row_ok = {unidecode(key): unidecode(value) for key, value in row.items()}
-            lista_aux.append(row_ok)
+    with open(nombre_archivo, 'r', encoding='utf-8') as archivo:
+        diccionarios = csv.DictReader(archivo)
+        for fila in diccionarios:
+            fila_ok = {unidecode(clave): unidecode(valor) for clave, valor in fila.items()}
+            lista_aux.append(fila_ok)
     
     return lista_aux
 
