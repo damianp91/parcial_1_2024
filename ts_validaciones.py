@@ -84,7 +84,7 @@ def ingreso_fecha() -> (datetime):
         datetime: Devuelve objeto de tipo datetime o None en caso de no ingresar los datos
         correctamente.
     """
-    dia = input("Ingrese dia (dd): ")
+    dia = input("\nIngrese dia (dd): ")
     mes = input("Ingrese mes (mm): ")
     anio = input("Ingrese anio (aaaa): ")
     
@@ -157,8 +157,11 @@ def verificador_formato_fecha(valor: str, formato: str= '%d/%m/%Y') -> (str):
     formato_ok = ""
     try:
         
-        fecha = datetime.strptime(valor, '%d-%m-%Y')
-        formato_ok = fecha.strftime(formato)
+        if isinstance(valor, datetime):
+            formato_ok = valor.strftime(formato)
+        else:
+            fecha = datetime.strptime(valor, '%d-%m-%Y')
+            formato_ok = fecha.strftime(formato)
     
     except ValueError:
         try:

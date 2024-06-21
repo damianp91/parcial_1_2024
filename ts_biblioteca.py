@@ -20,7 +20,7 @@
 # QUE SURJA DE, FUERA DE O EN CONEXIÓN CON EL SOFTWARE O EL USO U OTROS TRATOS EN EL
 # SOFTWARE.
 
-from datetime import datetime
+
 from ts_validaciones import(
     validar_caracteres, validador_fechas, validar_entero, 
     ingreso_fecha, estado_proyecto, verificador_formato_fecha
@@ -59,7 +59,7 @@ def ingreso_datos() -> (list):
     # Nombre proyecto
     nombre_proyecto = input("\nIngrese nombre de proyecto (que no exceda los 30 caracteres): ")
     if validar_caracteres(nombre_proyecto, 30):
-        aux_list.append(nombre_proyecto)
+        aux_list.append(nombre_proyecto.capitalize())
         print("\nNombre correctamente agregado.")
     else:
         print(f"\nEL nombre {nombre_proyecto} excede los 30 caracteres o no es alfabetico (a-z)")
@@ -67,7 +67,7 @@ def ingreso_datos() -> (list):
     # Descripcion proyecto
     descripcion = input("\nIngrese descripcion de proyecto (que no exceda los 200 caracteres): ")
     if validar_caracteres(descripcion, 200, True):
-        aux_list.append(descripcion)
+        aux_list.append(descripcion.capitalize())
         print("\nDescripcion correctamente agregada.")
     else:
         print(f"\nLa descripcion {descripcion} excede los 200 caracteres o no es alfanumerico")
@@ -85,7 +85,7 @@ def ingreso_datos() -> (list):
     # Presupuesto
     presupuesto = input("\nIngrese presupuesto para el proyecto (Debe ser mayor a 500000 inclusive): ")
     if validar_entero(presupuesto, 500000, 10000000):
-        aux_list.append(presupuesto)
+        aux_list.append(int(presupuesto))
         print("\nPresupuesto Ingresado correctamente")
     else:
         print("\nNo se pudo ingresar correctamente presupuesto. Verifique el monto")
@@ -126,10 +126,10 @@ def asignacion_id(proyectos: list[dict]) -> (int):
     Returns:
         int: El nuevo ID autoincremental.
     """
-    id = 0
+    id = 1
     if proyectos:
         ultimo_id = max(int(proyecto['id']) for proyecto in proyectos)
-        id = ultimo_id
+        id = ultimo_id + 1 
     
     return id
 
@@ -153,7 +153,8 @@ def ts_ingreso_datos_proyecto(proyectos: list[dict]) -> (None):
                 "Fecha de inicio":datos[2],
                 "Fecha de Fin":datos[3],
                 "Presupuesto":datos[4],
-                "Estado":datos[5]}
+                "Estado":datos[5]
+            }
             
             proyectos.append(proyecto_nuevo)
         
@@ -170,22 +171,21 @@ def ts_ingreso_datos_proyecto(proyectos: list[dict]) -> (None):
 #         | Nombre del Proyecto | Descripción      | Presupuesto | Fecha de Inicio | Fecha de Fin | Estado    |
 #         | Innovación AI       | Desarrollo de IA | $1,000,000  | 01/01/2024      | 01/01/2025   | Activo    |
 #         | Rediseño Web        | Nueva página web | $300,000    | 15/02/2024      | 30/06/2024   | Cancelado |
-def mostrar_proyecto(proyecto: dict) -> (str):
+def mostrar_proyecto(proyecto: dict) -> (None):
     """
     Muestra por consola diccionario en formato tabla
     Args:
         proyecto (dict): Diccionario a formatear como tabla
-    Returns:
-        (str): Cadena de caracteres con datos de diccionario
+    
     """
     presupuesto_formateado = "${:,.0f}".format(float(proyecto['Presupuesto']))
     fecha_inicio = verificador_formato_fecha(proyecto['Fecha de inicio'])
     fecha_fin = verificador_formato_fecha(proyecto['Fecha de Fin'])
     
-    mensaje = f"| {proyecto['Nombre del Proyecto']:40} | {proyecto['Descripcion']:90} | {str(presupuesto_formateado):12}\
- | {fecha_inicio:12} | {fecha_fin:12} | {proyecto['Estado']:10} |"
+    mensaje = f"| {proyecto['Nombre del Proyecto']:40} | {proyecto['Descripcion']:90} | {presupuesto_formateado:>12}\
+ | {fecha_inicio:^12} | {fecha_fin:^12} | {proyecto['Estado']:^10} |"
     
-    return mensaje
+    print(mensaje)
 
 
 def ts_mostrar_proyectos(proyectos: list[dict]) -> (None):
@@ -194,22 +194,21 @@ def ts_mostrar_proyectos(proyectos: list[dict]) -> (None):
     Args:
         proyectos (list[dict]): Lista de diccionarios con proyectos
     """
-    print("-----------------------------------------------------------------------------------\
- Presupuestos TechSolutions -----------------------------------------------------------------------------------")
+    print("-" * 195)
+    print("|\t\t\t\t\t\t\t\t\t\t  Proyectos TechSolutions\t\t\t\t\t\t\t\t\t\t\t  |")
+    print("-" * 195)
     print(f"| {'Nombre proyecto':^40} | {'Descripcion proyecto':^90} | {'Presupuesto':12} | {'Fecha inicio':10}\
  | {'Fecha Fin':^12} | {'Estado':^10} |")
-    print("-------------------------------------------------------------------------------------\
--------------------------------------------------------------------------------------------------------------")
+    print("-" * 195)
     for proyecto in proyectos:
-        print(mostrar_proyecto(proyecto))
-    print("--------------------------------------------------------------------------------------\
-------------------------------------------------------------------------------------------------------------")
+        mostrar_proyecto(proyecto)
+    print("-" * 195)
 
 
 def bucar_proyecto(proyectos: list[dict], clave: str, valor: str) -> (bool):
     """
     Busca por clave y valor si el elemnto esta en la lista de diccionarios
-    y lo muestra por pantalla 
+    retorna un True 
     Args:
         proyectos (list[dict]): Lista de diccionarios de proyectos
         calve (str): calve a buscar
@@ -220,7 +219,6 @@ def bucar_proyecto(proyectos: list[dict], clave: str, valor: str) -> (bool):
     buscar_ok = False
     for proyecto in proyectos:
         if proyecto.get(clave) == valor:
-            print(mostrar_proyecto(proyecto))
             buscar_ok = True
     
     return buscar_ok
@@ -239,14 +237,14 @@ def modificar(proyecto: dict, valor: int) -> (dict):
         case 1:
             nombre_proyecto = input("\nIngrese nombre de proyecto (que no exceda los 30 caracteres): ")
             if validar_caracteres(nombre_proyecto, 30):
-                proyecto['Nombre del Proyecto'] = nombre_proyecto
+                proyecto['Nombre del Proyecto'] = nombre_proyecto.capitalize()
                 print("\nNombre correctamente agregado.")
             else:
                 print(f"\nEL nombre {nombre_proyecto} excede los 30 caracteres o no es alfabetico (a-z)")
         case 2:
             descripcion = input("\nIngrese descripcion de proyecto (que no exceda los 200 caracteres): ")
             if validar_caracteres(descripcion, 200, True):
-                proyecto['Descripcion'] = descripcion
+                proyecto['Descripcion'] = descripcion.capitalize()
                 print("\nDescripcion correctamente agregada.")
             else:
                 print(f"\nLa descripcion {descripcion} excede los 200 caracteres o no es alfanumerico")
@@ -260,16 +258,14 @@ def modificar(proyecto: dict, valor: int) -> (dict):
         case 4:
             fecha_1 = ingreso_fecha()
             if validador_fechas(fecha_1, proyecto['Fecha de Fin']):
-                fecha_final = fecha_1.strftime('%d/%m/%Y')
-                proyecto['Fecha de inicio'] = fecha_final
+                proyecto['Fecha de inicio'] = fecha_1.strftime('%d/%m/%Y')
                 print("\nFecha valida y agregada.")
             else:
                 print("\nFechas no corresponden al formato (dd/mm/aaaa) o fecha fin es menor a fecha inicio")
         case 5:
             fecha_2 = ingreso_fecha()
             if validador_fechas(proyecto['Fecha de inicio'], fecha_2):
-                fecha_final = fecha_2.strftime('%d/%m/%Y')
-                proyecto['Fecha de Fin'] = fecha_final
+                proyecto['Fecha de Fin'] = fecha_2.strftime('%d/%m/%Y')
                 print("\nFechas válidas y agregadas.")
             else:
                 print("\nFechas no corresponden al formato (dd/mm/aaaa) o fecha fin es menor a fecha inicio")
@@ -311,13 +307,18 @@ def ts_modificar_proyecto(proyectos: list[dict]) -> (None):
         proyectos (list[dict]): Lista de diccionarios que representan proyectos.
     """
     buscar = input("Ingrese ID de proyecto a modificar: ")
-    if validar_entero(buscar, 1, 500) and bucar_proyecto(proyectos, "id", buscar):
+    indice = bucar_indice(proyectos, "id", buscar)
+    if validar_entero(buscar, 1, 500) and bucar_proyecto(proyectos, "id", buscar)\
+        and indice != -1:
+        mostrar_proyecto(proyectos[indice])
         menu_modificar()
         opcion = input("Ingrese opcion a modificar: ")
         if validar_entero(opcion, 1, 7):
-            indice = bucar_indice(proyectos, "id", buscar)
-            proyectos[indice] = modificar(proyectos[indice], int(opcion))
-            print("\nProyecto modificado exitosamente.")
+            if 1 <= int(opcion) <= 6:
+                proyectos[indice] = modificar(proyectos[indice], int(opcion))
+                print("\nProyecto modificado exitosamente.")
+            else:
+                print("Se cancela modificacion de proyecto.")
         else:
             print("\nOpción no válida. Debe ingresar un número entre 1 y 7.")
     else:

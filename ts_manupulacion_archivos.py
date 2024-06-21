@@ -22,9 +22,28 @@
 
 
 import csv
-from unidecode import(
-    unidecode
-)
+from unidecode import unidecode
+from datetime import datetime
+
+def convertir_valor(clave: str, valor: str) -> (datetime | float):
+    """
+    Convierte el valor de un campo específico a un tipo apropiado.
+    Args:
+        clave (str): La clave del valor.
+        valor (str): El valor a convertir.
+    Returns:
+        datetime | float: El valor convertido.
+    """
+    conversion = valor
+    
+    if clave in ['Fecha de inicio','Fecha de Fin']:
+        conversion = datetime.strptime(valor, '%d-%m-%Y')
+    
+    if clave in ['Presupuesto']:
+        conversion = float(valor)
+    
+    return conversion
+
 
 def copia_csv_original(nombre_archivo: str) -> (list):
     """
@@ -39,7 +58,7 @@ def copia_csv_original(nombre_archivo: str) -> (list):
     with open(nombre_archivo, 'r', encoding='utf-8') as archivo:
         diccionarios = csv.DictReader(archivo)
         for fila in diccionarios:
-            fila_ok = {unidecode(clave): unidecode(valor) for clave, valor in fila.items()}
+            fila_ok = {unidecode(clave): convertir_valor(unidecode(clave), unidecode(valor)) for clave, valor in fila.items()}
             lista_aux.append(fila_ok)
     
     return lista_aux

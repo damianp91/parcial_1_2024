@@ -32,7 +32,7 @@ def menu_principal() -> (None):
     menu = \
     """
     =============================================
-                GESTION DE PROYECTOS
+    \t\t\tGESTION DE PROYECTOS
     =============================================
     01. Ingresar proyecto.
     02. Modificar proyecto.
@@ -65,7 +65,7 @@ def menu_modificar() -> (None):
     sub_menu = \
     """
     ==================================
-            MODIFICACION DATOS 
+    \t\tMODIFICACION DATOS 
     ==================================
     01. Nombre proyecto.
     02. Descripcion proyecto.
@@ -91,7 +91,7 @@ def menu_ornenamiento() -> (None):
     sub_menu = \
     """
     ==================================
-            ORDENAMIENTO DATOS
+    \t\tORDENAMIENTO DATOS
     ==================================
     01. Nombre proyecto.
     02. Presupuesto.
@@ -114,10 +114,10 @@ def menu_menor_mayor() -> (None):
     sub_menu = \
     """
     ==================================
-            SENTIDO ORDENAMIENTO
+    \t\tSENTIDO ORDENAMIENTO
     ==================================
-    01. Mayor a Menor.
-    02. Menor a Mayor.
+    01. Menor a Mayor.
+    02. Mayor a Menor.
     03. Salir.
     ==================================
     """

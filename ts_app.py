@@ -23,12 +23,8 @@
 
 
 from ts_biblioteca import(
-    ts_ingreso_datos_proyecto, ts_mostrar_proyectos,
-    ts_modificar_proyecto, ts_mostrar_tabla_ordenada
-)
-
-from ts_biblioteca import(
-    ts_menu_principal, ts_mostrar_proyectos
+    ts_menu_principal, ts_ingreso_datos_proyecto, ts_mostrar_proyectos,
+    ts_mostrar_proyectos, ts_modificar_proyecto, ts_mostrar_tabla_ordenada
 )
 
 from ts_validaciones import(
@@ -75,5 +71,5 @@ def ts_gestion_proyectos_app(lista_proyectos: list[dict]) -> (None):
                 print("¡¡¡Gracias por usar nuestra app!!!")
                 break
             case _:
-                print(f'Opción inválida, el numero {eleccion} no esta en el rago de 1 - 10')
+                print(f'Opción inválida, el numero {eleccion} no esta en el rago de 1 - 12')
         limpiar_consola()
