@@ -21,7 +21,13 @@
 # SOFTWARE.
 
 import os
-from datetime import datetime
+from datetime import(
+    datetime
+)
+
+from ts_manupulacion_archivos import(
+    pasar_lista_csv
+)
 
 def limpiar_consola():
     _ = input('\nPresione Enter para continuar...')
@@ -145,33 +151,130 @@ def estado_proyecto() -> (str):
     return estado_ok
 
 
+def bucar_proyecto(proyectos: list[dict], clave: str, valor: str) -> (bool):
+    """
+    Busca por clave y valor si el elemnto esta en la lista de diccionarios
+    retorna un True 
+    Args:
+        proyectos (list[dict]): Lista de diccionarios de proyectos
+        calve (str): calve a buscar
+        valor (str): valor a comparar
+    Returns:
+        (bool): Retorna un True si se encuantra el valor o por defecto retorna un False
+    """
+    buscar_ok = False
+    for proyecto in proyectos:
+        if proyecto.get(clave) == valor:
+            buscar_ok = True
+    
+    return buscar_ok
+
+
 def verificador_formato_fecha(valor: str, formato: str= '%d/%m/%Y') -> (str):
     """
-    Verifica si una fecha esta en el formato requerido. Si no, la formatea al formato especificado.
+    Verifica si una fecha esta en el formato requerido. Si no, la formatea al formato
+    especificado.
     Args:
         valor (str): La fecha a verificar.
         formato (str): El formato deseado. Por defecto es '%d/%m/%Y'.
     Returns:
-        str: La fecha en el formato especificado.
+        str | datetime: La fecha en el formato especificado.
     """
     formato_ok = ""
     try:
-        
+        # En caso que sea un objeto datetime
         if isinstance(valor, datetime):
             formato_ok = valor.strftime(formato)
+        # En caso que sea un strin y tenga formato d/m/a
         else:
             fecha = datetime.strptime(valor, '%d-%m-%Y')
             formato_ok = fecha.strftime(formato)
     
     except ValueError:
         try:
-            
+            # En caso que sean un valor distinto a los anteriores
             datetime.strptime(valor, formato)
             formato_ok = valor
         
         except ValueError:
-            
+            # No es ninguno de los tres.
             raise ValueError(f"La fecha '{valor}' no está en un formato válido.")
     
     return formato_ok
 
+
+def fecha_hoy() -> (datetime):
+    """
+    Obtiene la fecha actual y la devuelve como un objeto datetime.
+    
+    Returns:
+        datetime: La fecha actual como un objeto datetime.
+    """
+    hoy = datetime.now()
+    
+    return hoy
+
+
+def normalizar_frase(frase: str) -> (str):
+    """
+    Capitaliza las palabras de más de tres caracteres en una frase.
+    Args:
+        frase (str): Cadena de caracteres a normalizar.
+    Returns:
+        str: Frase normalizada con palabras de más de tres caracteres
+        capitalizadas.
+    """
+    frase = frase.split()
+    list_aux = []
+    
+    for palabra in frase:
+        if len(palabra) > 3:
+            palabra = palabra.capitalize()
+        list_aux.append(palabra)
+    
+    frase_hecha = ' '.join(list_aux)
+    
+    return frase_hecha
+
+
+def rango_fechas(fecha_inicio: tuple, fecha_fin: tuple, fecha: datetime) -> (bool):
+    """
+    Verifica si una fecha está dentro de un rango específico.
+    Args:
+        fecha_inicio (tuple): Tupla con el año, mes y día de la fecha de inicio (ej. (2020, 3, 1)).
+        fecha_fin (tuple): Tupla con el año, mes y día de la fecha de fin (ej. (2021, 12, 31)).
+        fecha (datetime): La fecha a verificar.  
+    Returns:
+        bool: True si la fecha está en el rango, False de lo contrario.
+    """
+    fecha_ok = False
+    try: 
+        inicio = datetime(fecha_inicio[0], fecha_inicio[1], fecha_inicio[2])
+        fin = datetime(fecha_fin[0], fecha_fin[1], fecha_fin[2])
+        fecha_ok = inicio <= fecha <= fin
+    except (IndexError, ValueError) as falla:
+        print(f"\nError al crear las fechas: {falla}. Verifique el ingreso de las fecha a comparar.")
+    
+    return fecha_ok
+
+
+def validar_salida(proyectos: list[dict]) -> (None):
+    """
+    Valida que el usuario quiera salir y guardar o no cambios en lista de proyectos
+    Args:
+        proyectos (list[dict]): Lista de proyectos a guardar
+    """
+    guardar = True
+    while guardar:
+        eleccion = input("\n¿Desea guardar los cambios? (s/n): ").lower()
+        if validar_caracteres(eleccion, 1):
+            if eleccion == 's':
+                pasar_lista_csv('Proyectos.csv', proyectos)
+                guardar = False
+            elif eleccion == 'n':
+                print("\nNo se hace cambios en lista de proyectos")
+                guardar = False
+            else:
+                print("\n¡Debe elegir entre 's' y 'n' para poder salir del parcial!")
+        else:
+            print("\n¡Debe elegir entre 's' y 'n' para poder salir del parcial!")

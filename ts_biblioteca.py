@@ -23,7 +23,8 @@
 
 from ts_validaciones import(
     validar_caracteres, validador_fechas, validar_entero, 
-    ingreso_fecha, estado_proyecto, verificador_formato_fecha
+    ingreso_fecha, estado_proyecto, verificador_formato_fecha,
+    fecha_hoy, normalizar_frase, bucar_proyecto, rango_fechas
     )
 
 from ts_menus import(
@@ -47,19 +48,19 @@ def ts_menu_principal() -> (int):
     return valor
 
 
-def ingreso_datos() -> (list):
+def ingreso_datos() -> (dict):
     """
     Encargado de dar vingreso a nuevos datos siempre y cuando se sigan las reglas de validacion
     informadas para cada caso.
     Returns:
-        list: Devuelve una lista con datos recopilados en su formato especificado
+        dict: Devuelve un diccionario con datos recopilados en su formato especificado
     """
     aux_list = []
     
     # Nombre proyecto
     nombre_proyecto = input("\nIngrese nombre de proyecto (que no exceda los 30 caracteres): ")
     if validar_caracteres(nombre_proyecto, 30):
-        aux_list.append(nombre_proyecto.capitalize())
+        aux_list.append(normalizar_frase(nombre_proyecto))
         print("\nNombre correctamente agregado.")
     else:
         print(f"\nEL nombre {nombre_proyecto} excede los 30 caracteres o no es alfabetico (a-z)")
@@ -76,8 +77,8 @@ def ingreso_datos() -> (list):
     fecha_1 = ingreso_fecha()
     fecha_2 = ingreso_fecha()
     if validador_fechas(fecha_1, fecha_2):
-        aux_list.append(fecha_1.strftime('%d/%m/%Y'))
-        aux_list.append(fecha_2.strftime('%d/%m/%Y'))
+        aux_list.append(fecha_1)
+        aux_list.append(fecha_2)
         print("\nFechas válidas y agregadas.")
     else:
         print("\nFechas no corresponden al formato (dd/mm/aaaa) o fecha fin es menor a fecha inicio")
@@ -93,7 +94,11 @@ def ingreso_datos() -> (list):
     # Estado
     aux_list.append(estado_proyecto())
     
-    return aux_list
+    try:
+        return {"Nombre del Proyecto":aux_list[0],"Descripcion":aux_list[1],"Fecha de inicio":aux_list[2],
+                "Fecha de Fin":aux_list[3],"Presupuesto":aux_list[4],"Estado":aux_list[5]}
+    except IndexError:
+        print("\nNo se pudo ingresar nuevo proyecto, verifique los datos e intente de nuevo.")
 
 
 def conteo_elemento_estado(proyectos: list[dict], clave: str, valor: str) -> (int):
@@ -145,27 +150,19 @@ def ts_ingreso_datos_proyecto(proyectos: list[dict]) -> (None):
         id = asignacion_id(proyectos)
         datos = ingreso_datos()
         
-        if len(datos) == 6:
-            proyecto_nuevo = {
-                "id":str(id),
-                "Nombre del Proyecto":datos[0],
-                "Descripcion":datos[1],
-                "Fecha de inicio":datos[2],
-                "Fecha de Fin":datos[3],
-                "Presupuesto":datos[4],
-                "Estado":datos[5]
-            }
-            
-            proyectos.append(proyecto_nuevo)
-        
-        else:
-            print("\nNo se ingreso datos de proyecto, si desea ingresar un proyecto por favor intente\
+        try:
+            if len(datos) == 6:
+                ingreso_id = {'id': str(id)}
+                datos.update(ingreso_id)
+                proyectos.append(datos)
+                print(f"\nIngreso de nuevo proyecto con ID: {id}.")
+            else:
+                print("\nNo se ingreso datos de proyecto, si desea ingresar un proyecto por favor intente\
                 de nuevo siguiendo el formato requerido.")
+        except TypeError:
+            print("\nNo ingreso ningun dato, verifique sus dato e intente de nuevo.")
     else:
         print("\nEl proyecto excede la capacidad maxima (50 proyectos en estado Activo).")
-# 2. Modificar proyecto: Permitirá alterar cualquier dato del proyecto excepto su ID. Se usará el ID
-#     para identificar al proyecto a modificar. Se mostrará un submenú para seleccionar qué datos
-#     modificar. Se indicará si se realizaron modificaciones o no.
 # 5. Mostrar todos: Imprimirá por consola la información de todos los proyectos en formato de
 #     tabla:
 #         | Nombre del Proyecto | Descripción      | Presupuesto | Fecha de Inicio | Fecha de Fin | Estado    |
@@ -176,7 +173,6 @@ def mostrar_proyecto(proyecto: dict) -> (None):
     Muestra por consola diccionario en formato tabla
     Args:
         proyecto (dict): Diccionario a formatear como tabla
-    
     """
     presupuesto_formateado = "${:,.0f}".format(float(proyecto['Presupuesto']))
     fecha_inicio = verificador_formato_fecha(proyecto['Fecha de inicio'])
@@ -205,25 +201,27 @@ def ts_mostrar_proyectos(proyectos: list[dict]) -> (None):
     print("-" * 195)
 
 
-def bucar_proyecto(proyectos: list[dict], clave: str, valor: str) -> (bool):
+def mostrar_clave_valor(proyectos: list[dict], clave: str, valor: str) -> (list[dict]):
     """
-    Busca por clave y valor si el elemnto esta en la lista de diccionarios
-    retorna un True 
+    Agrega a una lista de retorno el o los diccionarios que cumplan con con el criterio
+    de clave y valor
     Args:
-        proyectos (list[dict]): Lista de diccionarios de proyectos
-        calve (str): calve a buscar
-        valor (str): valor a comparar
+        proyectos (list[dict]): Lista de diccionarios
+        clave (str): calve de diccionario
+        valor (str): valor de la clave
     Returns:
-        (bool): Retorna un True si se encuantra el valor o por defecto retorna un False
+        list: lista de elementos, elemento o lista vacia 
     """
-    buscar_ok = False
-    for proyecto in proyectos:
-        if proyecto.get(clave) == valor:
-            buscar_ok = True
+    retorno_lista = []
+    if proyectos:
+        for proyecto in proyectos:
+            if proyecto.get(clave) == valor:
+                retorno_lista.append(proyecto)
     
-    return buscar_ok
-
-
+    return retorno_lista
+# 2. Modificar proyecto: Permitirá alterar cualquier dato del proyecto excepto su ID. Se usará el ID
+#     para identificar al proyecto a modificar. Se mostrará un submenú para seleccionar qué datos
+#     modificar. Se indicará si se realizaron modificaciones o no.
 def modificar(proyecto: dict, valor: int) -> (dict):
     """
     Permite modificar un proyecto existente basado en una opción seleccionada.
@@ -237,7 +235,7 @@ def modificar(proyecto: dict, valor: int) -> (dict):
         case 1:
             nombre_proyecto = input("\nIngrese nombre de proyecto (que no exceda los 30 caracteres): ")
             if validar_caracteres(nombre_proyecto, 30):
-                proyecto['Nombre del Proyecto'] = nombre_proyecto.capitalize()
+                proyecto['Nombre del Proyecto'] = normalizar_frase(nombre_proyecto)
                 print("\nNombre correctamente agregado.")
             else:
                 print(f"\nEL nombre {nombre_proyecto} excede los 30 caracteres o no es alfabetico (a-z)")
@@ -258,14 +256,14 @@ def modificar(proyecto: dict, valor: int) -> (dict):
         case 4:
             fecha_1 = ingreso_fecha()
             if validador_fechas(fecha_1, proyecto['Fecha de Fin']):
-                proyecto['Fecha de inicio'] = fecha_1.strftime('%d/%m/%Y')
+                proyecto['Fecha de inicio'] = fecha_1
                 print("\nFecha valida y agregada.")
             else:
                 print("\nFechas no corresponden al formato (dd/mm/aaaa) o fecha fin es menor a fecha inicio")
         case 5:
             fecha_2 = ingreso_fecha()
             if validador_fechas(proyecto['Fecha de inicio'], fecha_2):
-                proyecto['Fecha de Fin'] = fecha_2.strftime('%d/%m/%Y')
+                proyecto['Fecha de Fin'] = fecha_2
                 print("\nFechas válidas y agregadas.")
             else:
                 print("\nFechas no corresponden al formato (dd/mm/aaaa) o fecha fin es menor a fecha inicio")
@@ -281,7 +279,6 @@ def modificar(proyecto: dict, valor: int) -> (dict):
 def bucar_indice(proyectos: list[dict], clave: str, valor: str) -> (int):
     """
     Busca un índice dentro de una lista de diccionarios según una clave y un valor específicos.
-    
     Args:
         proyectos (list[dict]): Lista de diccionarios donde buscar.
         clave (str): Clave del diccionario que se utilizará para la búsqueda.
@@ -302,42 +299,128 @@ def bucar_indice(proyectos: list[dict], clave: str, valor: str) -> (int):
 def ts_modificar_proyecto(proyectos: list[dict]) -> (None):
     """
     Permite modificar un proyecto dentro de la lista de proyectos.
-    
     Args:
         proyectos (list[dict]): Lista de diccionarios que representan proyectos.
     """
     buscar = input("Ingrese ID de proyecto a modificar: ")
-    indice = bucar_indice(proyectos, "id", buscar)
-    if validar_entero(buscar, 1, 500) and bucar_proyecto(proyectos, "id", buscar)\
-        and indice != -1:
-        mostrar_proyecto(proyectos[indice])
-        menu_modificar()
-        opcion = input("Ingrese opcion a modificar: ")
-        if validar_entero(opcion, 1, 7):
-            if 1 <= int(opcion) <= 6:
-                proyectos[indice] = modificar(proyectos[indice], int(opcion))
-                print("\nProyecto modificado exitosamente.")
+    if validar_entero(buscar, 1, 500):
+        indice = bucar_indice(proyectos, "id", buscar)
+        if indice != -1 and bucar_proyecto(proyectos, "id", buscar):
+            proyecto_modificar = mostrar_clave_valor(proyectos, 'id', buscar)
+            ts_mostrar_proyectos(proyecto_modificar)
+            menu_modificar()
+            opcion = input("Ingrese opcion a modificar: ")
+            if validar_entero(opcion, 1, 7):
+                if 1 <= int(opcion) <= 6:
+                    proyectos[indice] = modificar(proyectos[indice], int(opcion))
+                    print("\nProyecto modificado exitosamente.")
+                else:
+                    print("Se cancela modificacion de proyecto.")
             else:
-                print("Se cancela modificacion de proyecto.")
+                print("\nOpción no válida. Debe ingresar un número entre 1 y 7.")
         else:
-            print("\nOpción no válida. Debe ingresar un número entre 1 y 7.")
+            print(f"\nEn ID {buscar} no se encontra en lista de proyectos.")
     else:
-        print("\nNo se encontro proyecto")
+        print("\nLista de proyectos vacia.")
 # 3. Cancelar proyecto: Cancelará un proyecto de la lista original. Se pedirá el ID del proyecto a
 #     cancelar.
+def ts_cancelar_proyecto(proyectos: list[dict]) -> (None):
+    """
+    Cancela un proyecto por su ID, cambiando su estado a 'Cancelado' y 
+    actualizando la 'Fecha de Fin' a la fecha actual.
+    Args:
+        proyectos (list[dict]): Lista de proyectos.
+    """
+    buscar = input("\nIngrese ID de proyecto a cancelar: ")
+    if validar_entero(buscar, 1, 500):
+        indice = bucar_indice(proyectos, "id", buscar)
+        if indice != -1 and bucar_proyecto(proyectos, "id", buscar):
+            cancelar = mostrar_clave_valor(proyectos, 'id', buscar)
+            ts_mostrar_proyectos(cancelar)
+            seleccion = input("\n¿Desea cambiar el estado de este proyecto? (s/n): ").lower()
+            if validar_caracteres(seleccion, 1):
+                if seleccion == 's':
+                    fecha_cancelacion = fecha_hoy()
+                    cambio_estado = proyectos[indice]
+                    cambio_estado['Estado'] = 'Cancelado'
+                    cambio_estado['Fecha de Fin'] = fecha_cancelacion
+                    print("\nSe hace cambio de estado con exito.")
+                else:
+                    print("\nSe cancela cambio de estado.")
+            else:
+                print("\nNo se pudo cambiar el estado ingreso de respuesta incorrecta\
+                    debe ser 's' o 'n'.")
+        else:
+            print(f"\nNumero {buscar} no se encuentra en la lista de proyectos.")
+    else:
+        print("\nLista de proyectos vacia.")
 # 4. Comprobar proyectos: Cambiará el estado de todos los proyectos cuya fecha de finalización
 #     ya haya sucedido.
+def ts_comprobar_proyectos(proyectos: list[dict]) -> (None):
+    """
+    Verifica si la fecha de fin de los proyectos es menor a la fecha actual
+    y si el estado del proyecto es 'Activo'. Si es así, cambia el estado a 'Finalizado'.
+    Args:
+        proyectos (list[dict]): Lista de proyectos.
+    """
+    if proyectos:
+        comprobacion = False
+        hoy = fecha_hoy()
+        for proyecto in proyectos:
+            if proyecto['Fecha de Fin'] < hoy and proyecto.get('Estado') == 'Activo':
+                proyecto['Estado'] = 'Finalizado'
+                comprobacion = True
+        if comprobacion:
+            print("\nProyectos verificados y actualizados")
+        else:
+            print("\nSin proyectos para finalizar.")
+    else:
+        print("\nLista de proyectos vacia.")
 # 6. Calcular presupuesto promedio: Calculará e imprimirá el presupuesto promedio de todos los
 #     proyectos.
-
-
+def ts_promedio_presupuesto(proyectos: list[dict]) -> (None):
+    """
+    Calcula y muestra el promedio de los presupuestos de los proyectos.
+    Args:
+        proyectos (list[dict]): Lista de proyectos.
+    """
+    presupuesto = 0
+    if proyectos:
+        suma_presupuesto = sum(proyecto['Presupuesto'] for proyecto in proyectos)
+        cantidad_proyectos = len(proyectos)
+        promedio = suma_presupuesto / cantidad_proyectos
+        promedio_final = "$ {:,.0f}".format(promedio)
+        print("=" * 60)
+        print(f"\nPromedio de presupuestos es: {promedio_final}.")
+        print(f"Con un total de {cantidad_proyectos} proyectos.\n")
+        print("=" * 60)
+    else:
+        promedio_final = "$ {:,.0f}".format(presupuesto)
+        print("=" * 60)
+        print(f"\nPromedio de presupuestos es: {promedio_final}.")
+        print("Con un total de 0 proyectos.\n")
+        print("=" * 60)
 # 7. Buscar proyecto por nombre: Permitirá al usuario buscar y mostrar la información de un
 #     proyecto específico ingresando su nombre.
-
-
+def ts_buscar_proyecto_nombre(proyectos: list[dict]) -> (None):
+    """
+    Busca y muestra un proyecto por su nombre.
+    Args:
+        proyectos (list[dict]): Lista de proyectos.
+    """
+    buscar = input("Escriba el nombre de proyecto a buscar: ")
+    if proyectos and validar_caracteres(buscar, 30):
+        buscar_ok = normalizar_frase(buscar)
+        if bucar_proyecto(proyectos, 'Nombre del Proyecto', buscar_ok):
+            encontrado = mostrar_clave_valor(proyectos, 'Nombre del Proyecto', buscar_ok)
+            ts_mostrar_proyectos(encontrado)
+        else:
+            print(f"\nNo se encontro el proyecto: {buscar_ok}.")
+    else:
+        print(f"\nLista de proyectos vacia.")
 # 8. Ordenar proyectos: Ofrecerá la opción de ordenar y mostrar la lista de proyectos por nombre,
 #     presupuesto, o fecha de inicio de forma ascendente o descendente.
-def ordenar_tabla_valor(proyectos: list[dict], key: str, may_men= True) -> (list[dict]):
+def ordenar_tabla_valor(proyectos: list[dict], key: str, men_may= True) -> (list[dict]):
     """
     Ordena una lista de diccionarios segun criterio
     Args:
@@ -355,12 +438,12 @@ def ordenar_tabla_valor(proyectos: list[dict], key: str, may_men= True) -> (list
     proyectos_copia = proyectos.copy()
     
     pivot = proyectos_copia.pop()
-    pivot_valor = pivot[key]
+    pivot_valor = pivot.get(key)
     mayor = []
     menor = []
     
     for proyecto in proyectos_copia:
-        if may_men:
+        if men_may:
             if proyecto.get(key) > pivot_valor:
                 mayor.append(proyecto)
             else:
@@ -371,7 +454,7 @@ def ordenar_tabla_valor(proyectos: list[dict], key: str, may_men= True) -> (list
             else:
                 menor.append(proyecto)
     
-    return ordenar_tabla_valor(menor, key, may_men) + [pivot] + ordenar_tabla_valor(mayor, key, may_men)
+    return ordenar_tabla_valor(menor, key, men_may) + [pivot] + ordenar_tabla_valor(mayor, key, men_may)
 
 
 def ts_mostrar_tabla_ordenada(proyectos: list[dict]) -> (None):
@@ -406,20 +489,92 @@ def ts_mostrar_tabla_ordenada(proyectos: list[dict]) -> (None):
             
             ts_mostrar_proyectos(proyectos_ordenados)
         
+        
         elif opcion == '4' or sentido == '3':
             print("\nSe cancela ordenamiento.")
         
         else:
             print("\nEleccion incorrecta se cancela ordenamiento.")
+    else:
+        print("\nLista de proyectos vacia.")
 # 9. Retomar proyecto: Vuelve a dar de alta un proyecto Cancelado, comprobando anteriormente
 #    que cumpla todos los requisitos para esto.
+def ts_retomar_proyecto(proyectos: list[dict]) -> (None):
+    """
+    Retoma proyecto que anteriormente habia sido Cancelado dendole un estado de Activo. 
+    Args:
+        proyectos (list[dict]): Lista de proyectos a modificar.
+    """
+    if proyectos:
+        cancelados = mostrar_clave_valor(proyectos, 'Estado', 'Cancelado')
+        ts_mostrar_proyectos(cancelados)
+        retomar = input("\nIngrese nombre de proyecto que desea retomar: ")
+        if validar_caracteres(retomar, 30):
+            retomar_ok = normalizar_frase(retomar)
+            indice = bucar_indice(proyectos, 'Nombre del Proyecto', retomar_ok)
+            if indice != -1:
+                print("Ingrese fechas de inicio y fin.")
+                fecha_1= ingreso_fecha()
+                fecha_2= ingreso_fecha()
+                if validador_fechas(fecha_1, fecha_2):
+                    proyecto = proyectos[indice]
+                    proyecto['Estado'] = 'Activo'
+                    proyecto['Fecha de inicio'] = fecha_1
+                    proyecto['Fecha de Fin'] = fecha_2
+                print("\nSe retoma proyecto con exito.")
+            else:
+                print("\nNo se encuestra proyecto.")
+        else:
+            print(f"\nEl nombre {retomar} no se encuentra en lista de proyectos.")
+    else:
+        print("\nLista de proyectos vacia.")
 # 10. Mostrar todos los proyectos terminados en medio de la cuarentena del COVID 19 (Marzo de 2020
 #     hasta el fin del 2021 por ejemplo). En caso de que no haya indicar error
+def ts_proyectos_finalizados_covid(proyectos: list[dict]) -> (None):
+    """
+    Filtra y muestra proyectos finalizados durante la cuarentena del COVID-19.
+    Args:
+        proyectos (list[dict]): Lista de diccionarios con los datos de los proyectos.
+    """
+    lista_aux = []
+    if proyectos:
+        for proyecto in proyectos:
+            if rango_fechas((2020, 3, 1), (2021, 12, 31), proyecto['Fecha de Fin']):
+                lista_aux.append(proyecto)
+        if len(lista_aux) < 1:
+            print("\nNo hay proyecto para mostrar.")
+        else:
+            lista_fin = mostrar_clave_valor(lista_aux, 'Estado', 'Finalizado')
+            print("\n\nPROYECTOS FINALIZADOS DURANTE EL COVID-19.")
+            ts_mostrar_proyectos(lista_fin)
+        
+    else:
+        print("\nLista de proyectos vacia.")
 # 11. Realizar un top 3 de los proyectos activos con mayor presupuesto que hayan sido iniciados en la
 #     década de los 10’ (1 de Enero de 2010 hasta 31 de Diciembre de 2019). Verificar qué haya la cantidad
 #     deseada de proyectos , sino indicar un mensaje de error.
+def ts_top3_proyectos_activos_mejor_presupuesto(proyectos: list[dict]) -> (None):
+    """
+    Filtra y muestra un top 3 de proyectos con mayor presupuesto que hayan sido inicioados
+    durante la decada de 2010-2020.
+    Args:
+        proyectos (list[dict]): Lista de diccionarios con los datos de los proyectos.
+    """
+    lista_aux = []
+    if proyectos:
+        for proyecto in proyectos:
+            if rango_fechas((2010, 1, 1), (2019, 12, 31), proyecto['Fecha de inicio']):
+                lista_aux.append(proyecto)
+        if len(lista_aux) < 3:
+            print("\nHay menos de 3 proyectos para mostrar el top 3.")
+        else:
+            lista_ordenada = ordenar_tabla_valor(lista_aux, 'Presupuesto', False)
+            print("\n\nMEJORES PRESUPUESTOS 2da DECADA DEL 2000.")
+            ts_mostrar_proyectos(lista_ordenada[:3])
+    else:
+        print("\nLista de proyectos vacia.")
 # 12. Salir: Terminará la ejecución del programa.
-
+# ¡¡¡Hecho!!!
 
 
 

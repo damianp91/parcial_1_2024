@@ -24,11 +24,18 @@
 
 from ts_biblioteca import(
     ts_menu_principal, ts_ingreso_datos_proyecto, ts_mostrar_proyectos,
-    ts_mostrar_proyectos, ts_modificar_proyecto, ts_mostrar_tabla_ordenada
+    ts_mostrar_proyectos, ts_modificar_proyecto, ts_mostrar_tabla_ordenada,
+    ts_cancelar_proyecto, ts_comprobar_proyectos, ts_promedio_presupuesto,
+    ts_buscar_proyecto_nombre, ts_retomar_proyecto, ts_proyectos_finalizados_covid,
+    ts_top3_proyectos_activos_mejor_presupuesto
 )
 
 from ts_validaciones import(
-    limpiar_consola
+    limpiar_consola, validar_salida
+)
+
+from ts_manupulacion_archivos import(
+    proyectos_finalizados_json
 )
 
 def ts_gestion_proyectos_app(lista_proyectos: list[dict]) -> (None):
@@ -50,24 +57,26 @@ def ts_gestion_proyectos_app(lista_proyectos: list[dict]) -> (None):
             case 2:
                 ts_modificar_proyecto(lista_proyectos)
             case 3:
-                pass
+                ts_cancelar_proyecto(lista_proyectos)
             case 4:
-                pass
+                ts_comprobar_proyectos(lista_proyectos)
+                proyectos_finalizados_json(lista_proyectos)
             case 5:
                 ts_mostrar_proyectos(lista_proyectos)
             case 6:
-                pass
+                ts_promedio_presupuesto(lista_proyectos)
             case 7:
-                pass
+                ts_buscar_proyecto_nombre(lista_proyectos)
             case 8:
                 ts_mostrar_tabla_ordenada(lista_proyectos)
             case 9:
-                pass
+                ts_retomar_proyecto(lista_proyectos)
             case 10:
-                pass
+                ts_proyectos_finalizados_covid(lista_proyectos)
             case 11:
-                pass
+                ts_top3_proyectos_activos_mejor_presupuesto(lista_proyectos)
             case 12:
+                validar_salida(lista_proyectos)
                 print("¡¡¡Gracias por usar nuestra app!!!")
                 break
             case _:

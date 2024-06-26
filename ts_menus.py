@@ -32,7 +32,7 @@ def menu_principal() -> (None):
     menu = \
     """
     =============================================
-    \t\t\tGESTION DE PROYECTOS
+    \t\tGESTION DE PROYECTOS
     =============================================
     01. Ingresar proyecto.
     02. Modificar proyecto.
@@ -41,7 +41,7 @@ def menu_principal() -> (None):
     05. Mostrar todos.
     06. Calcular presupuesto promedio.
     07. Buscar proyecto por nombre.
-    08. Ordenar proyectos por nombre.
+    08. Ordenar proyectos por item.
     09. Retomar proyecto.
     10. Informe proyectos finalizados 
         durante el COVI-19.
@@ -65,7 +65,7 @@ def menu_modificar() -> (None):
     sub_menu = \
     """
     ==================================
-    \t\tMODIFICACION DATOS 
+    \tMODIFICACION DATOS 
     ==================================
     01. Nombre proyecto.
     02. Descripcion proyecto.
@@ -91,7 +91,7 @@ def menu_ornenamiento() -> (None):
     sub_menu = \
     """
     ==================================
-    \t\tORDENAMIENTO DATOS
+    \tORDENAMIENTO DATOS
     ==================================
     01. Nombre proyecto.
     02. Presupuesto.
@@ -114,7 +114,7 @@ def menu_menor_mayor() -> (None):
     sub_menu = \
     """
     ==================================
-    \t\tSENTIDO ORDENAMIENTO
+    \tSENTIDO ORDENAMIENTO
     ==================================
     01. Menor a Mayor.
     02. Mayor a Menor.
