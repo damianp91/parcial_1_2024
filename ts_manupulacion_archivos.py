@@ -115,13 +115,26 @@ def transformar_proyecto(proyecto):
     ]
     
     nuevo_proyecto = proyecto.copy()
-    nuevo_proyecto['fechas'] = fechas_finalizacion
+    nuevo_proyecto['fechas_finalizacion'] = fechas_finalizacion
     
     # Elimino los campos individuales de fecha.
     del nuevo_proyecto['Fecha de inicio']
     del nuevo_proyecto['Fecha de Fin']
     
     return nuevo_proyecto
+
+
+def leer_archivo_json(nombre_archivo: str) -> (None):
+    
+    with open(nombre_archivo, 'r', encoding= 'utf-8') as archivo:
+        contenido = json.load(archivo)
+    
+    lista_id = [{proyecto['id'],len(proyecto['fechas'])} for proyecto in contenido]
+    
+    print(lista_id)
+
+
+#leer_archivo_json('ProyectosFinalizados.json')  
 
 
 def proyectos_finalizados_json(proyectos: list[dict]) -> (None):
@@ -133,7 +146,7 @@ def proyectos_finalizados_json(proyectos: list[dict]) -> (None):
     proyectos_finalizados = [proyecto for proyecto in proyectos if\
         proyecto.get('Estado') == 'Finalizado']
     
-    proyectos_normalizados = [transformar_proyecto(proyecto) for proyecto in proyectos_finalizados]
+    #proyectos_normalizados = [transformar_proyecto(proyecto) for proyecto in proyectos_finalizados]
     
     with open('ProyectosFinalizados.json', 'w', encoding= 'utf-8') as finalizados_json:
-        json.dump(proyectos_normalizados, finalizados_json, ensure_ascii= False, indent= 4, default=convertir_fecha)
+        json.dump(proyectos_finalizados, finalizados_json, ensure_ascii= False, indent= 4, default=convertir_fecha)
